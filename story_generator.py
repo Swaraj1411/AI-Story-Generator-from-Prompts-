@@ -1,19 +1,21 @@
-import openai
 import os
+import google.generativeai as genai
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+genai.configure(api_key='AIzaSyDdrF4zxOppHdXt-LpwRUv3cegWEIcFKkg')
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def generate_story(prompt: str) -> str:
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # or "gpt-4"
-            messages=[
-                {"role": "system", "content": "You are a creative story writer."},
-                {"role": "user", "content": f"Write a short, imaginative story based on this prompt: {prompt}"}
-            ],
-            max_tokens=500,
-            temperature=0.8,
+        response = model.generate_content(
+            f"Write a short, imaginative story based on this prompt: {prompt}",
+            generation_config={
+                "temperature": 0.8,
+                "max_output_tokens": 500,
+                "top_p": 1.0,
+                "top_k": 40
+            }
         )
-        return response['choices'][0]['message']['content'].strip()
+        return response.text.strip()
     except Exception as e:
         return f"Error generating story: {e}"
